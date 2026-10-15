@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="theme-color" content="#EA4501">
+<title>СКОР — электронный дневник</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<div class="app">
+
+<!-- LOGIN -->
+<section id="loginPage" class="login-page">
+  <div class="login-logo">СКОР</div>
+  <div class="login-subtitle">Электронный дневник</div>
+
+  <div class="role-switch">
+    <button id="studentRole" class="active" onclick="setRole('student')">Студент</button>
+    <button id="teacherRole" onclick="setRole('teacher')">Преподаватель</button>
+    <button id="adminRole" onclick="setRole('admin')">Администратор</button>
+  </div>
+
+  <div id="studentFields">
+    <label>Факультет</label>
+    <select id="faculty">
+      <option>Институт информационных технологий и математики</option>
+      <option>Колледж инфраструктурных технологий</option>
+      <option>Институт естественных наук</option>
+      <option>Институт зарубежной филологии</option>
+    </select>
+    <label>Логин / ID</label>
+    <input id="studentLogin" value="ivanova.ab" placeholder="Например, ivanova.ab">
+    <label>Пароль</label>
+    <input id="studentPassword" type="password" value="1234" placeholder="Пароль">
+  </div>
+
+  <div id="teacherFields" class="hidden">
+    <label>Логин</label>
+    <input id="teacherLogin" value="potapov" placeholder="Например, potapov">
+    <label>Пароль</label>
+    <input id="teacherPassword" type="password" value="4321" placeholder="Пароль">
+  </div>
+
+  <div id="adminFields" class="hidden">
+    <label>Логин администратора</label><input id="adminLogin" value="admin" placeholder="Логин">
+    <label>Пароль</label><input id="adminPassword" type="password" value="admin123" placeholder="Пароль">
+  </div>
+  <button class="login-btn" onclick="login()">Войти</button>
+  <div class="demo-hint" id="demoHint">Демо: ivanova.ab / 1234</div>
+</section>
+
+<!-- STUDENT APP -->
+<div id="studentApp" class="app-inner hidden">
+<header class="topbar">
+  <div><div class="logo">СКОР</div><div class="subtitle">Электронный дневник</div></div>
+  <button class="icon-btn" onclick="logout()" aria-label="Выйти из профиля">↪</button>
+</header>
+<main>
+  <section id="sSchedule" class="page active">
+    <div class="title-row"><div><h1>Расписание</h1><p class="muted" id="studentGroup">ИСИП-24-5</p></div><span class="semester">5 семестр</span></div>
+    <div class="week"><button onclick="changeStudentDay(-1)">‹</button><div><b id="sDayName"></b><span id="sDayDate"></span></div><button onclick="changeStudentDay(1)">›</button></div>
+    <div class="day-strip" id="sDayStrip"></div>
+    <div id="sLessons"></div>
+  </section>
+
+  <section id="sReport" class="page report-page">
+    <h1>Отчётность</h1><p class="muted">5 семестр · ИСИП-24-5</p>
+    <div class="report-summary"><div><span>Набрано</span><b>161</b><small>из 192</small></div><div><span>Максимум</span><b>192</b><small>за семестр</small></div></div>
+    <div id="studentSubjects"></div>
+  </section>
+
+  <section id="sReportDetail" class="page detail-page"></section>
+
+  <section id="sCourses" class="page">
+    <h1>Мои курсы</h1><p class="muted">5 семестр · 2026/2027</p>
+    <div id="studentCourses"></div>
+  </section>
+
+  <section id="sProfile" class="page">
+    <h1>Профиль</h1>
+    <div class="profile-card profile-main-card"><div class="avatar">АБ</div><h2>Иванова Алина Борисовна</h2><p class="muted">Студентка · ИСИП-24-5</p><div class="profile-stats"><div><span>Группа</span><b>ИСИП-24-5</b></div><div><span>Курс</span><b>3</b></div><div><span>Семестр</span><b>5</b></div></div></div>
+    <div class="profile-actions">
+      <button class="profile-action" onclick="openStudentRecordbook()"><span>🎓</span><div><b>Зачётная книжка</b><small>Оценки и успеваемость по предметам</small></div><i>›</i></button>
+      <button class="profile-action" onclick="openProfileTab('sNotifications')"><span>🔔</span><div><b>Уведомления</b><small>Новости и события аккаунта</small></div><i>›</i></button>
+      
+      <button class="profile-action" onclick="openProfileTab('sEditProfile')"><span>✎</span><div><b>Редактировать профиль</b><small>Изменить данные профиля</small></div><i>›</i></button>
+      <button class="profile-action" onclick="openProfileTab('sSupport')"><span>💬</span><div><b>Поддержка</b><small>Написать в службу поддержки</small></div><i>›</i></button>
+      <button class="profile-action" onclick="openProfileTab('sAbout')"><span>ⓘ</span><div><b>О приложении</b><small>Информация о СКОР</small></div><i>›</i></button>
+    </div>
+    <button class="wide-outline" onclick="logout()">Выйти из системы</button>
+  </section>
+
+  <section id="sNotifications" class="page profile-subpage"></section>
+  <section id="sSupport" class="page profile-subpage"></section>
+  <section id="sEditProfile" class="page profile-subpage"></section>
+  <section id="sAbout" class="page profile-subpage"></section>
+
+  <section id="sDetail" class="page detail-page"></section>
+  <section id="sMaterials" class="page detail-page"></section>
+  <section id="sRecordbook" class="page detail-page"></section>
+</main>
+<nav class="bottom-nav">
+ <button class="nav-item active" onclick="studentPage('sSchedule',this)"><span>⌂</span><small>Расписание</small></button>
+ <button class="nav-item" onclick="studentPage('sReport',this)"><span>▤</span><small>Отчётность</small></button>
+ <button class="nav-item" onclick="studentPage('sCourses',this)"><span>▣</span><small>Мои курсы</small></button>
+ <button class="nav-item" onclick="studentPage('sProfile',this)"><span>♙</span><small>Профиль</small></button>
+</nav>
+</div>
+
+<!-- TEACHER APP -->
+<div id="teacherApp" class="app-inner hidden">
+<header class="topbar teacher-top">
+  <div><div class="logo">СКОР</div><div class="subtitle">Кабинет преподавателя</div></div>
+  <button class="icon-btn" onclick="logout()">↪</button>
+</header>
+<main>
+  <section id="tSchedule" class="page active">
+    <div class="title-row"><div><h1>Расписание</h1><p class="muted">Преподаватель · М. А. Потапов</p></div></div>
+    <div class="week"><button onclick="changeTeacherDay(-1)">‹</button><div><b id="tDayName"></b><span id="tDayDate"></span></div><button onclick="changeTeacherDay(1)">›</button></div>
+    <div class="day-strip" id="tDayStrip"></div>
+    <div id="tLessons"></div>
+  </section>
+
+  <section id="tReport" class="page">
+    <h1>Отчётность</h1><p class="muted">Выберите группу</p>
+    <div class="group-grid" id="teacherGroups"></div>
+    <div id="groupReport"></div>
+  </section>
+
+  <section id="tGroups" class="page">
+    <h1>Мои группы</h1><p class="muted">Группы преподавателя</p>
+    <div class="group-grid">
+      <button onclick="openGroup('ИСИП-24-4')"><b>ИСИП-24-4</b><small>22 студента</small></button>
+      <button onclick="openGroup('ИСИП-24-5')"><b>ИСИП-24-5</b><small>23 студента</small></button>
+      <button onclick="openGroup('ИСИП-24-6')"><b>ИСИП-24-6</b><small>21 студент</small></button>
+    </div>
+  </section>
+
+  <section id="tProfile" class="page">
+    <h1>Профиль</h1>
+    <div class="profile-card profile-main-card teacher-profile-card"><div class="avatar teacher-avatar">МА</div><h2>Михаил Анатольевич Потапов</h2><p class="muted">Преподаватель</p><div class="profile-stats teacher-profile-stats"><div><span>Группы</span><b>3</b></div><div><span>Семестр</span><b>5</b></div></div></div>
+    <div class="profile-actions">
+      <button class="profile-action" onclick="openTeacherProfileTab('tNotifications')"><span>🔔</span><div><b>Уведомления</b><small>Новости и события аккаунта</small></div><i>›</i></button>
+      
+      <button class="profile-action" onclick="openTeacherProfileTab('tEditProfile')"><span>✎</span><div><b>Редактировать профиль</b><small>Изменить данные профиля</small></div><i>›</i></button>
+      <button class="profile-action" onclick="openTeacherRecords()"><span>🎓</span><div><b>Зачётные книжки</b><small>Просмотр и редактирование оценок студентов</small></div><i>›</i></button>
+      <button class="profile-action" onclick="openTeacherProfileTab('tRatings')"><span>★</span><div><b>Рейтинг преподавателей</b><small>Средние оценки и список преподавателей</small></div><i>›</i></button>
+      <button class="profile-action" onclick="openTeacherProfileTab('tSupport')"><span>💬</span><div><b>Поддержка</b><small>Написать в службу поддержки</small></div><i>›</i></button>
+      <button class="profile-action" onclick="openTeacherProfileTab('tAbout')"><span>ⓘ</span><div><b>О приложении</b><small>Информация о СКОР</small></div><i>›</i></button>
+    </div>
+    <button class="wide-outline" onclick="logout()">Выйти из системы</button>
+  </section>
+  <section id="tNotifications" class="page profile-subpage"></section>
+  <section id="tSupport" class="page profile-subpage"></section>
+  <section id="tEditProfile" class="page profile-subpage"></section>
+  <section id="tAbout" class="page profile-subpage"></section>
+  <section id="tRatings" class="page profile-subpage"></section>
+
+  <section id="attendance" class="page detail-page attendance-wrap"></section>
+  <section id="tStudentRecords" class="page detail-page"></section>
+</main>
+<nav class="bottom-nav">
+ <button class="nav-item active" onclick="teacherPage('tSchedule',this)"><span>⌂</span><small>Расписание</small></button>
+ <button class="nav-item" onclick="teacherPage('tReport',this)"><span>▤</span><small>Отчётность</small></button>
+ <button class="nav-item" onclick="teacherPage('tRatings',this)"><span>★</span><small>Рейтинг</small></button>
+ <button class="nav-item" onclick="teacherPage('tProfile',this)"><span>♙</span><small>Профиль</small></button>
+</nav>
+</div>
+
+
+<!-- ADMIN APP: added without changing student/teacher screens -->
+<div id="adminApp" class="app-inner hidden">
+<header class="topbar"><div><div class="logo">СКОР</div><div class="subtitle">Кабинет администратора</div></div><button class="icon-btn" onclick="logout()">↪</button></header>
+<main>
+<section id="aDashboard" class="page active"><h1>Панель администратора</h1><p class="muted">Управление учебным процессом</p><div class="admin-grid">
+<button class="admin-tile" onclick="adminPage('aSchedule')"><b>▦ Расписание</b><small>Создание и изменение расписания групп</small></button>
+<button class="admin-tile" onclick="adminPage('aUsers')"><b>♙ Пользователи</b><small>Редактирование студентов и преподавателей</small></button>
+<button class="admin-tile" onclick="adminPage('aNews')"><b>▤ Новости</b><small>Публикация новостей для пользователей</small></button>
+<button class="admin-tile" onclick="adminPage('aSupport')"><b>💬 Мессенджер</b><small>Отдельные диалоги со студентами и преподавателями</small></button>
+</div><div class="admin-card"><h2>Быстрые действия</h2><button class="wide-outline" onclick="adminPage('aSchedule')">+ Добавить занятие</button><button class="wide-outline" onclick="adminPage('aNews')">+ Написать новость</button><button class="wide-outline" onclick="logout()">Выйти из профиля</button></div></section>
+<section id="aProfile" class="page"><button class="detail-back" onclick="adminPage('aDashboard')">‹ На главную</button><h1>Профиль администратора</h1><div class="profile-card profile-main-card"><div class="avatar">АД</div><h2>Администратор СКОР</h2><p class="muted">Администратор системы</p></div><button class="wide-outline" onclick="logout()">Выйти из профиля</button></section>
+<section id="aSchedule" class="page"><button class="detail-back" onclick="adminPage('aDashboard')">‹ Назад</button><h1>Расписание групп</h1><p class="muted">Добавляйте, редактируйте и удаляйте занятия</p><div class="admin-card"><label>Группа</label><select id="adminGroup"><option>ИСИП-24-4</option><option>ИСИП-24-5</option><option>ИСИП-24-6</option><option>ИСИП-24-1</option><option>ИСИП-24-2</option><option>ИСИП-24-3</option></select><label>День недели</label><select id="adminDay"><option>Понедельник</option><option>Вторник</option><option>Среда</option><option>Четверг</option><option>Пятница</option><option>Суббота</option><option>Воскресенье</option></select><label>Время</label><input id="adminTime" placeholder="09:50–11:25"><label>Предмет</label><input id="adminSubject" placeholder="Название предмета"><label>Тип занятия</label><select id="adminType"><option>Лекция</option><option>Практика</option><option>Лабораторная</option></select><label>Преподаватель</label><input id="adminTeacher" placeholder="Ф.И.О. преподавателя"><label>Аудитория</label><input id="adminRoom" placeholder="209"><button class="login-btn" onclick="saveAdminLesson()">Сохранить занятие</button></div><div id="adminScheduleList"></div></section>
+<section id="aUsers" class="page"><button class="detail-back" onclick="adminPage('aDashboard')">‹ Назад</button><h1>Пользователи</h1><p class="muted">Изменяйте данные пользователей</p><div class="admin-card"><label>Тип пользователя</label><select id="userType"><option>Студент</option><option>Преподаватель</option></select><label>ФИО</label><input id="userName" placeholder="Фамилия Имя Отчество"><label>Логин</label><input id="userLogin" placeholder="Логин"><label>Группа / должность</label><input id="userGroup" placeholder="ИСИП-24-5 или преподаватель"><label>Пароль</label><input id="userPassword" placeholder="Новый пароль"><button class="login-btn" onclick="saveAdminUser()">Добавить / сохранить пользователя</button></div><div id="adminUsersList"></div></section>
+<section id="aNews" class="page"><button class="detail-back" onclick="adminPage('aDashboard')">‹ Назад</button><h1>Новости</h1><div class="admin-card"><label>Заголовок</label><input id="newsTitle" placeholder="Заголовок новости"><label>Текст новости</label><textarea id="newsText" rows="4" placeholder="Текст для студентов и преподавателей"></textarea><button class="login-btn" onclick="publishAdminNews()">Опубликовать новость</button></div><div id="adminNewsList"></div></section>
+<section id="aSupport" class="page"><button class="detail-back" onclick="adminPage('aDashboard')">‹ Назад</button><h1>Мессенджер</h1><p class="muted">Выберите профиль для просмотра личного диалога</p><div class="messenger-layout" id="adminMessengerLayout"><div id="adminSupportList" class="admin-card"></div><div class="messenger-thread"><button type="button" class="messenger-back" onclick="backToAdminChats()">‹ Все чаты</button><div id="adminThread" class="chat-box"><p class="muted">Выберите пользователя слева</p></div><label>Ответ выбранному пользователю</label><textarea id="adminReply" rows="3" placeholder="Введите сообщение..."></textarea><button class="login-btn" onclick="replyAdminSupport()">Отправить сообщение</button></div></div></section>
+</main><nav class="bottom-nav"><button class="nav-item active" onclick="adminPage('aDashboard',this)"><span>⌂</span><small>Главная</small></button><button class="nav-item" onclick="adminPage('aSchedule',this)"><span>▦</span><small>Расписание</small></button><button class="nav-item" onclick="adminPage('aUsers',this)"><span>♙</span><small>Пользователи</small></button><button class="nav-item" onclick="adminPage('aNews',this)"><span>▤</span><small>Новости</small></button><button class="nav-item" onclick="adminPage('aSupport',this)"><span>💬</span><small>Поддержка</small></button></nav>
+</div>
+
+<div id="toast"></div>
+<script src="script.js"></script>
+</body>
+</html>
